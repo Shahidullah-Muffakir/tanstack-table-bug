@@ -67,7 +67,9 @@ export type Payment = {
 /**
  * @description - I want to get the handleDelete function from the DataTable component and call it on the delete button in the action columns
  */
-export const columns: ColumnDef<Payment>[] = [
+export const columns = (
+  handleDelete: (id: string) => void
+): ColumnDef<Payment>[] => [
   {
     accessorKey: "status",
     header: "Status",
@@ -102,14 +104,14 @@ export const columns: ColumnDef<Payment>[] = [
           /**
            * @description - I want to call this `handleDelete` function to the delete button press below
            */
-          // onClick={() => handleDelete(payment.id)}
+          onClick={() => handleDelete(payment.id)}
         >
           Delete
         </Button>
       );
     },
   },
-];
+  ];
 
 export default function DataTable() {
   const [tableData, setTableData] = React.useState<Payment[]>([]);
@@ -117,13 +119,21 @@ export default function DataTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [columnVisibility, setColumnVisibility] =
+    const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  React.useEffect(() => {
+    setTableData(data);
+  },[data])
+ const handleDelete = (id: string) => {
+   // delete the row with the id
+   const updateData = tableData.filter((item) => item.id !== id);
+   setTableData(updateData);
+ };
   const table = useReactTable({
-    data,
-    columns,
+    data: tableData,
+    columns: columns(handleDelete), 
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -144,10 +154,6 @@ export default function DataTable() {
    * @description - I want to pass this function to the delete button in the action columns
    * @param id delete byn id
    */
-  const handleDelete = (id: string) => {
-    // delete the row with the id
-    data.filter((item) => item.id !== id);
-  };
 
   React.useEffect(() => {}, []);
 
